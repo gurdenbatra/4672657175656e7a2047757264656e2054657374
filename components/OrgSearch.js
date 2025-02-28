@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
 
-const OrgSearch = () => {
+const OrgSearch = ({ onSelectOrg, selectedOrg }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [selectedOrg, setSelectedOrg] = useState(null);
 
   // Fetch organizations on query change
   useEffect(() => {
@@ -37,14 +36,14 @@ const OrgSearch = () => {
     return () => clearTimeout(debounceTimeout);
   }, [query]);
 
-    // Clear selected organization
-    const clearOrganization = () => {
-      setSelectedOrg(null);
-    };
+  // Clear selected organization
+  const clearOrganization = () => {
+    onSelectOrg(null);
+  };
 
   return (
     <>
-    <label>Search GitHub organization</label>
+      <label>Search GitHub organization</label>
       <input
         type="text"
         placeholder="Start typing here, example: mapbox"
@@ -65,7 +64,7 @@ const OrgSearch = () => {
             key={org.id}
             className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
             onClick={() => {
-              setSelectedOrg(org);
+              onSelectOrg(org);
               setQuery("");
               setResults([]);
             }}
@@ -92,7 +91,10 @@ const OrgSearch = () => {
               />
               {selectedOrg.login}
             </h2>
-            <button onClick={clearOrganization} className="text-red-500 hover:cursor-pointer">
+            <button
+              onClick={clearOrganization}
+              className="text-red-500 hover:cursor-pointer"
+            >
               Clear
             </button>
           </div>
