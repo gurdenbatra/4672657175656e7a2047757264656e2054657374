@@ -37,6 +37,11 @@ const OrgSearch = () => {
     return () => clearTimeout(debounceTimeout);
   }, [query]);
 
+    // Clear selected organization
+    const clearOrganization = () => {
+      setSelectedOrg(null);
+    };
+
   return (
     <>
     <label>Search GitHub organization</label>
@@ -74,6 +79,33 @@ const OrgSearch = () => {
           </div>
         ))}
       </motion.div>
+
+      {/* Selected Organization */}
+      {selectedOrg && (
+        <div className="mt-5 p-4 border rounded-md bg-gray-100">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold flex items-center">
+              <img
+                src={selectedOrg.avatar_url}
+                alt={selectedOrg.login}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+              {selectedOrg.login}
+            </h2>
+            <button onClick={clearOrganization} className="text-red-500 hover:cursor-pointer">
+              Clear
+            </button>
+          </div>
+          <a
+            href={selectedOrg.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 text-sm"
+          >
+            View on GitHub
+          </a>
+        </div>
+      )}
     </>
   );
 };
