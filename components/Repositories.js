@@ -9,7 +9,7 @@ const perPage = 10;
 const Repositories = ({ selectedOrg }) => {
   const [repos, setRepos] = useState([]);
   const [repoLoading, setRepoLoading] = useState(false);
-  const [totalRepos, setTotalRepos] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
 
   // Fetch repositories for the selected organization
@@ -30,7 +30,7 @@ const Repositories = ({ selectedOrg }) => {
           `https://api.github.com/orgs/${selectedOrg.login}`,
         );
         const orgData = await orgResponse.json();
-        setTotalRepos(orgData.public_repos || 0);
+        setTotalPages(Math.ceil(orgData.public_repos / perPage));
       } catch (error) {
         console.error("Error fetching repositories:", error);
       } finally {
@@ -136,24 +136,49 @@ const Repositories = ({ selectedOrg }) => {
         <div className="mt-5">
           <h3 className="text-md font-semibold">Repositories:</h3>
           {filteredRepos.length > 0 ? (
-            <table className="w-full mt-2 border rounded-md">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2">Name</th>
-                  <th className="p-2">Open Issues</th>
-                  <th className="p-2">Stars</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRepos.map((repo) => (
-                  <tr key={repo.id} className="border-t">
-                    <td className="p-2">{repo.name}</td>
-                    <td className="p-2">{repo.open_issues_count}</td>
-                    <td className="p-2">{repo.stargazers_count}</td>
+            <>
+              <table className="w-full mt-2 border rounded-md">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="p-2">Name</th>
+                    <th className="p-2">Open Issues</th>
+                    <th className="p-2">Stars</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredRepos.map((repo) => (
+                    <tr key={repo.id} className="border-t">
+                      <td className="p-2">{repo.name}</td>
+                      <td className="p-2">{repo.open_issues_count}</td>
+                      <td className="p-2">{repo.stargazers_count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1}
+                  className={`px-4 py-2 rounded-md ${page === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={page === totalPages}
+                  className={`px-4 py-2 rounded-md ${page === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+                >
+                  Next
+                </button>
+              </div>
+            </>
           ) : (
             <span className="px-2 w-full">
               No results found, please check filters.
