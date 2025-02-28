@@ -7,7 +7,7 @@ import Repositories from "@/components/Repositories";
 export default function Home() {
   const [selectedOrg, setSelectedOrg] = useState(null);
   return (
-    <div className="w-96 mx-auto mt-10">
+    <div className="w-96 mx-auto mt-10 mb-40">
       <main className="">
         <OrgSearch onSelectOrg={setSelectedOrg} selectedOrg={selectedOrg} />
         {selectedOrg && (
