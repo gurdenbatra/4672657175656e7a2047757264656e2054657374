@@ -11,6 +11,24 @@ const Repositories = ({ selectedOrg }) => {
   const [repoLoading, setRepoLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
+  const [filteredRepos, setFilteredRepos] = useState([]);
+  const [repoNameFilter, setRepoNameFilter] = useState(
+    () => localStorage.getItem("repoNameFilter") || "",
+  );
+  const [minIssues, setMinIssues] = useState(
+    () => localStorage.getItem("minIssues") || "",
+  );
+  const [maxIssues, setMaxIssues] = useState(
+    () => localStorage.getItem("maxIssues") || "",
+  );
+  const [isValid, setIsValid] = useState(true);
+
+  // Save filters to localStorage
+  useEffect(() => {
+    localStorage.setItem("repoNameFilter", repoNameFilter);
+    localStorage.setItem("minIssues", minIssues);
+    localStorage.setItem("maxIssues", maxIssues);
+  }, [repoNameFilter, minIssues, maxIssues]);
 
   // Fetch repositories for the selected organization
   useEffect(() => {
@@ -40,15 +58,6 @@ const Repositories = ({ selectedOrg }) => {
 
     fetchRepos();
   }, [selectedOrg, page]);
-
-  // Repository filters
-  const [filteredRepos, setFilteredRepos] = useState([]);
-  const [repoNameFilter, setRepoNameFilter] = useState("");
-  const [minIssues, setMinIssues] = useState("");
-  const [maxIssues, setMaxIssues] = useState("");
-
-  // Validation state
-  const [isValid, setIsValid] = useState(true);
 
   // Apply filters
   useEffect(() => {
@@ -124,6 +133,9 @@ const Repositories = ({ selectedOrg }) => {
               setRepoNameFilter("");
               setMinIssues("");
               setMaxIssues("");
+              localStorage.removeItem("repoNameFilter");
+              localStorage.removeItem("minIssues");
+              localStorage.removeItem("maxIssues");
             }}
             className="mt-3 px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
           >
