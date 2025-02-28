@@ -137,12 +137,12 @@ const Repositories = ({ selectedOrg }) => {
           <h3 className="text-md font-semibold">Repositories:</h3>
           {filteredRepos.length > 0 ? (
             <>
-              <table className="w-full mt-2 border rounded-md">
+              <table className="w-full mt-2 border text-left">
                 <thead>
                   <tr className="bg-gray-200">
                     <th className="p-2">Name</th>
-                    <th className="p-2">Open Issues</th>
-                    <th className="p-2">Stars</th>
+                    <th className="p-2">🛠 Open Issues</th>
+                    <th className="p-2">⭐ Stars</th>
                   </tr>
                 </thead>
                 <tbody>
