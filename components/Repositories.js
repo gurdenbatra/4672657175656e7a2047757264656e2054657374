@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Loader } from "lucide-react";
 
 // set max page limit for pagination
 const perPage = 10;
@@ -40,30 +41,124 @@ const Repositories = ({ selectedOrg }) => {
     fetchRepos();
   }, [selectedOrg, page]);
 
+  // Repository filters
+  const [filteredRepos, setFilteredRepos] = useState([]);
+  const [repoNameFilter, setRepoNameFilter] = useState("");
+  const [minIssues, setMinIssues] = useState("");
+  const [maxIssues, setMaxIssues] = useState("");
+
+  // Validation state
+  const [isValid, setIsValid] = useState(true);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = repos;
+
+    if (repoNameFilter) {
+      filtered = filtered.filter((repo) =>
+        repo.name.toLowerCase().includes(repoNameFilter.toLowerCase()),
+      );
+    }
+
+    if (
+      minIssues !== "" &&
+      maxIssues !== "" &&
+      Number(minIssues) > Number(maxIssues)
+    ) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+      if (minIssues !== "") {
+        filtered = filtered.filter(
+          (repo) => repo.open_issues_count >= Number(minIssues),
+        );
+      }
+      if (maxIssues !== "") {
+        filtered = filtered.filter(
+          (repo) => repo.open_issues_count <= Number(maxIssues),
+        );
+      }
+    }
+
+    setFilteredRepos(filtered);
+  }, [repos, repoNameFilter, minIssues, maxIssues]);
+
   return (
     <>
+      {repoLoading && <Loader className="animate-spin mx-auto mt-2" />}
+
+      {/* Filters */}
+      {selectedOrg && (
+        <div className="mt-5 p-4 border rounded-md bg-gray-50">
+          <h3 className="text-md font-semibold">Filters:</h3>
+          <input
+            type="text"
+            placeholder="Filter by repo name..."
+            value={repoNameFilter}
+            onChange={(e) => setRepoNameFilter(e.target.value)}
+            className="w-full p-2 border rounded-md mt-2"
+          />
+          <div className="flex space-x-2 mt-2">
+            <input
+              type="number"
+              placeholder="Min open issues"
+              value={minIssues}
+              onChange={(e) => setMinIssues(e.target.value)}
+              className="w-1/2 p-2 border rounded-md"
+            />
+            <input
+              type="number"
+              placeholder="Max open issues"
+              value={maxIssues}
+              onChange={(e) => setMaxIssues(e.target.value)}
+              className="w-1/2 p-2 border rounded-md"
+            />
+          </div>
+          {!isValid && (
+            <p className="text-red-500 text-sm mt-1">Min must be ≤ Max</p>
+          )}
+
+          {/* Clear Filters Button */}
+          <button
+            onClick={() => {
+              setRepoNameFilter("");
+              setMinIssues("");
+              setMaxIssues("");
+            }}
+            className="mt-3 px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+          >
+            Clear Filters
+          </button>
+        </div>
+      )}
       {/* Repositories Table */}
       {selectedOrg && (
         <div className="mt-5">
           <h3 className="text-md font-semibold">Repositories:</h3>
-          <table className="w-full mt-2 border rounded-md">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2">Name</th>
-                <th className="p-2">Open Issues</th>
-                <th className="p-2">Stars</th>
-              </tr>
-            </thead>
-            <tbody>
-              {repos.map((repo) => (
-                <tr key={repo.id} className="border-t">
-                  <td className="p-2">{repo.name}</td>
-                  <td className="p-2">{repo.open_issues_count}</td>
-                  <td className="p-2">{repo.stargazers_count}</td>
+          {filteredRepos.length > 0 ? (
+            <table className="w-full mt-2 border rounded-md">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-2">Name</th>
+                  <th className="p-2">Open Issues</th>
+                  <th className="p-2">Stars</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredRepos.map((repo) => (
+                  <tr key={repo.id} className="border-t">
+                    <td className="p-2">{repo.name}</td>
+                    <td className="p-2">{repo.open_issues_count}</td>
+                    <td className="p-2">{repo.stargazers_count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <span className="px-2 w-full">
+              No results found, please check filters.
+            </span>
+          )}
         </div>
       )}
     </>
